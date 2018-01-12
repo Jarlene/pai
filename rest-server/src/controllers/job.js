@@ -24,7 +24,13 @@ const logger = require('../config/logger');
  */
 const load = (req, res, next, jobName) => {
   job = new Job(jobName, () => {
-    if (job.jobStatus.state === 'JOB_NOT_FOUND' && req.method !== 'PUT') {
+    if (job.jobStatus == null) {
+      logger.warn('Unknown error: %s', jobName);
+      return res.status(500).json({
+        error: "Unknown error: " + jobName,
+        message: `Unknown error when loading job ${jobName}`
+      });
+    } else if (job.jobStatus.state === 'JOB_NOT_FOUND' && req.method !== 'PUT') {
       logger.warn('load job %s error, could not find job', jobName);
       return res.status(404).json({
         error: "JobNotFound",
